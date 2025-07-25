@@ -633,7 +633,7 @@ POST /face-data
 **Body:**
 ```json
 {
-  "PersonType": "Student",
+  "PersonType": "student",
   "PersonCode": "STU001",
   "ImageData": "base64_encoded_image_data",
   "FaceDescriptor": "[0.123, -0.456, 0.789, ...]",
@@ -643,12 +643,12 @@ POST /face-data
 ```
 
 **Validation Rules:**
-- `PersonType`: Required, must be "Student" or "Teacher" (case-sensitive)
-- `PersonCode`: Required, max 10 characters (matches database CHAR(10))
-- `ImageData`: Required, valid base64 encoded string
-- `FaceDescriptor`: Optional, must be valid JSON if provided (nullable in database)
-- `OriginalName`: Optional, max 255 characters (VARCHAR(255))
-- `ContentType`: Optional, max 100 characters, defaults to "image/jpeg" (VARCHAR(100))
+- `PersonType`: Required, must be "student" or "teacher" (lowercase, CHECK constraint)  
+- `PersonCode`: Required, max 10 characters (CHAR(10))
+- `ImageData`: Required, valid base64 encoded string (LONGBLOB NOT NULL)
+- `FaceDescriptor`: Optional, must be valid JSON if provided (TEXT, nullable)
+- `OriginalName`: Required, max 255 characters (VARCHAR(255) NOT NULL)
+- `ContentType`: Required, max 100 characters (VARCHAR(100) NOT NULL)
 
 ### Update Face Data
 ```bash
@@ -668,8 +668,8 @@ DELETE /face-data/{id}
   "message": "Face data retrieved successfully",
   "data": {
     "Id": 1,
-    "PersonCode": "STU001",
-    "PersonType": "Student",
+    "PersonCode": "STU001", 
+    "PersonType": "student",
     "FaceDescriptor": "[0.123, -0.456, 0.789, ...]",
     "OriginalName": "student_face.jpg",
     "ContentType": "image/jpeg",
@@ -717,12 +717,73 @@ DELETE /face-data/{id}
 
 ### Tables Overview
 1. **Student** - Student information and images
-2. **Teacher** - Teacher information and images  
+   - `Id`: INT AUTO_INCREMENT PRIMARY KEY
+   - `StudentCode`: CHAR(10) 
+   - `StudentNickname`: VARCHAR(100)
+   - `StudentName`: VARCHAR(200)
+   - `StudentImage`: LONGBLOB
+   - `EmailAddress`: VARCHAR(100)
+   - `Campus`: VARCHAR(50)
+   - `Form`: VARCHAR(100)
+   - `CreatedDate`: DATETIME DEFAULT CURRENT_TIMESTAMP
+
+2. **Teacher** - Teacher information and images
+   - `Id`: INT AUTO_INCREMENT PRIMARY KEY
+   - `TeacherCode`: CHAR(10)
+   - `TeacherNickname`: VARCHAR(100)
+   - `TeacherName`: VARCHAR(200) 
+   - `TeacherImage`: LONGBLOB
+   - `EmailAddress`: VARCHAR(100)
+   - `Campus`: VARCHAR(50)
+   - `Department`: VARCHAR(100)
+   - `CreatedDate`: DATETIME DEFAULT CURRENT_TIMESTAMP
+
 3. **SubjectSet** - Course/subject definitions
+   - `Id`: INT AUTO_INCREMENT PRIMARY KEY
+   - `Campus`: CHAR(10)
+   - `SubjectSetID`: VARCHAR(50)
+   - `Subject`: VARCHAR(100)
+   - `SubjectSetDescription`: VARCHAR(200)
+   - `Credits`: INT DEFAULT 3
+   - `CreatedDate`: DATETIME DEFAULT CURRENT_TIMESTAMP
+
 4. **Class** - Student-teacher-subject enrollments
+   - `Id`: INT AUTO_INCREMENT PRIMARY KEY
+   - `Campus`: CHAR(10)
+   - `SubjectSetID`: VARCHAR(50)
+   - `TeacherCode`: CHAR(10)
+   - `StudentCode`: CHAR(10)
+   - `CreatedDate`: DATETIME DEFAULT CURRENT_TIMESTAMP
+
 5. **Sessions** - Scheduled class meetings
+   - `Id`: INT AUTO_INCREMENT PRIMARY KEY
+   - `SessionName`: VARCHAR(100) NOT NULL
+   - `SubjectSetID`: VARCHAR(50) NOT NULL
+   - `TeacherCode`: CHAR(10) NOT NULL
+   - `Campus`: CHAR(10)
+   - `SessionDate`: DATE NOT NULL
+   - `StartTime`: TIME
+   - `EndTime`: TIME
+   - `CreatedDate`: DATETIME DEFAULT CURRENT_TIMESTAMP
+
 6. **AttendanceRecords** - Attendance tracking
+   - `Id`: INT AUTO_INCREMENT PRIMARY KEY
+   - `SessionId`: INT NOT NULL
+   - `StudentCode`: CHAR(10) NOT NULL
+   - `Status`: VARCHAR(20) NOT NULL CHECK (Status IN ('Present', 'Absent', 'Late'))
+   - `AttendanceDate`: DATETIME DEFAULT CURRENT_TIMESTAMP
+   - `CreatedDate`: DATETIME DEFAULT CURRENT_TIMESTAMP
+   - FOREIGN KEY (SessionId) REFERENCES Sessions(Id)
+
 7. **FaceData** - Biometric data storage
+   - `Id`: INT AUTO_INCREMENT PRIMARY KEY
+   - `PersonType`: VARCHAR(20) NOT NULL CHECK (PersonType IN ('student', 'teacher'))
+   - `PersonCode`: CHAR(10) NOT NULL
+   - `ImageData`: LONGBLOB NOT NULL
+   - `FaceDescriptor`: TEXT (nullable)
+   - `OriginalName`: VARCHAR(255) NOT NULL
+   - `ContentType`: VARCHAR(100) NOT NULL
+   - `CreatedDate`: DATETIME DEFAULT CURRENT_TIMESTAMP
 
 ### Key Relationships
 - Students enrolled in Classes with Teachers and Subjects

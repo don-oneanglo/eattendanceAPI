@@ -33,13 +33,13 @@ router.post('/', validateFaceData, async (req, res) => {
       ContentType
     } = req.body;
     
-    // Verify person exists based on type (case-sensitive to match database ENUM)
-    if (PersonType === 'Student') {
+    // Verify person exists based on type (case-sensitive to match database CHECK constraint)
+    if (PersonType === 'student') {
       const [studentExists] = await db.execute('SELECT Id FROM Student WHERE StudentCode = ?', [PersonCode]);
       if (studentExists.length === 0) {
         return errorResponse(res, 'Student not found', 400);
       }
-    } else if (PersonType === 'Teacher') {
+    } else if (PersonType === 'teacher') {
       const [teacherExists] = await db.execute('SELECT Id FROM Teacher WHERE TeacherCode = ?', [PersonCode]);
       if (teacherExists.length === 0) {
         return errorResponse(res, 'Teacher not found', 400);
@@ -67,7 +67,7 @@ router.post('/', validateFaceData, async (req, res) => {
     const [result] = await db.execute(
       `INSERT INTO FaceData (PersonType, PersonCode, ImageData, FaceDescriptor, OriginalName, ContentType) 
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [PersonType, PersonCode, imageBuffer, FaceDescriptor || null, OriginalName || null, ContentType || 'image/jpeg']
+      [PersonType, PersonCode, imageBuffer, FaceDescriptor || null, OriginalName, ContentType]
     );
     
     const [newFaceData] = await db.execute('SELECT * FROM FaceData WHERE Id = ?', [result.insertId]);
@@ -97,13 +97,13 @@ router.put('/:id', validateFaceData, async (req, res) => {
       return notFoundResponse(res, 'Face data');
     }
     
-    // Verify person exists based on type (case-sensitive to match database ENUM)
-    if (PersonType === 'Student') {
+    // Verify person exists based on type (case-sensitive to match database CHECK constraint)
+    if (PersonType === 'student') {
       const [studentExists] = await db.execute('SELECT Id FROM Student WHERE StudentCode = ?', [PersonCode]);
       if (studentExists.length === 0) {
         return errorResponse(res, 'Student not found', 400);
       }
-    } else if (PersonType === 'Teacher') {
+    } else if (PersonType === 'teacher') {
       const [teacherExists] = await db.execute('SELECT Id FROM Teacher WHERE TeacherCode = ?', [PersonCode]);
       if (teacherExists.length === 0) {
         return errorResponse(res, 'Teacher not found', 400);
@@ -130,7 +130,7 @@ router.put('/:id', validateFaceData, async (req, res) => {
     await db.execute(
       `UPDATE FaceData SET PersonType = ?, PersonCode = ?, ImageData = ?, FaceDescriptor = ?, OriginalName = ?, ContentType = ? 
        WHERE Id = ?`,
-      [PersonType, PersonCode, imageBuffer, FaceDescriptor || null, OriginalName || null, ContentType || 'image/jpeg', id]
+      [PersonType, PersonCode, imageBuffer, FaceDescriptor || null, OriginalName, ContentType, id]
     );
     
     const [updatedFaceData] = await db.execute('SELECT * FROM FaceData WHERE Id = ?', [id]);

@@ -1,0 +1,52 @@
+COPY THIS PROMPT TO YOUR FIREBASE STUDIO APP:
+
+---
+
+Create a comprehensive web application for Educational Attendance Management that connects to my REST API running on http://localhost:5000
+
+The API provides these endpoints:
+- Students: GET/POST/PUT/DELETE /students
+- Teachers: GET/POST/PUT/DELETE /teachers  
+- Subject Sets: GET/POST /subject-sets
+- Classes: GET/POST /classes
+- Sessions: GET/POST/PUT /sessions
+- Attendance: GET/POST/PUT /attendance and /attendance/session/:id
+- Face Data: GET/POST/DELETE /face-data
+
+API Configuration to use:
+```javascript
+const API_BASE_URL = 'http://localhost:5000';
+const API_HEADERS = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+
+async function apiRequest(endpoint, method = 'GET', data = null) {
+  const config = { method, headers: API_HEADERS, mode: 'cors' };
+  if (data) config.body = JSON.stringify(data);
+  
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+  const result = await response.json();
+  if (!result.success) throw new Error(result.message);
+  return result;
+}
+```
+
+Build a modern web app with these features:
+1. Dashboard showing attendance statistics
+2. Student management (add/edit/view students with profile images)
+3. Teacher management (add/edit/view teachers)
+4. Class scheduling and session management
+5. Attendance tracking with Present/Absent/Late status
+6. Campus-based filtering (BKK, SGN, etc.)
+7. Face recognition data upload support
+
+Sample API calls:
+- Get students: `await apiRequest('/students')`
+- Create student: `await apiRequest('/students', 'POST', {StudentCode:'STU001', StudentName:'John Doe', EmailAddress:'john@example.com', Campus:'BKK', Form:'10A'})`
+- Get attendance: `await apiRequest('/attendance/session/1')`
+
+The API returns data in format: `{success: true, message: "...", data: {...}}`
+
+All endpoints support CORS and use JSON. Handle errors gracefully and show loading states. Make it responsive and user-friendly for educational staff to manage attendance efficiently.
+
+---
+
+PASTE THIS INTO YOUR FIREBASE STUDIO APP AND IT WILL CREATE YOUR FRONTEND!

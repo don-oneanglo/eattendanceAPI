@@ -13,6 +13,7 @@ const classesRoutes = require('./routes/classes');
 const sessionsRoutes = require('./routes/sessions');
 const attendanceRoutes = require('./routes/attendance');
 const faceDataRoutes = require('./routes/faceData');
+const authRoutes = require('./routes/auth');
 
 // Import database connection to initialize pool
 require('./config/database');
@@ -40,6 +41,7 @@ app.get('/', (req, res) => {
 });
 
 // API Routes
+app.use('/auth', authRoutes);
 app.use('/students', studentsRoutes);
 app.use('/teachers', teachersRoutes);
 app.use('/subject-sets', subjectSetsRoutes);

@@ -1,25 +1,20 @@
-COPY THIS PROMPT TO YOUR FIREBASE STUDIO APP:
+COPY THIS PROMPT TO YOUR NEXT.JS/GENKIT AI APP OR FIREBASE STUDIO:
 
 ---
 
-Create a comprehensive web application for Educational Attendance Management that connects to my REST API running on http://localhost:5000
+Create a Face Recognition Attendance System with this exact workflow:
 
-The API provides these endpoints:
-- Students: GET/POST/PUT/DELETE /students
-- Teachers: GET/POST/PUT/DELETE /teachers  
-- Subject Sets: GET/POST /subject-sets
-- Classes: GET/POST /classes
-- Sessions: GET/POST/PUT /sessions
-- Attendance: GET/POST/PUT /attendance and /attendance/session/:id
-- Face Data: GET/POST/DELETE /face-data
+**AUTHENTICATION & WORKFLOW:**
+1. Teacher Login Screen: Dropdown from GET /auth/teachers → Face scan → Verify with POST /auth/verify-teacher-face
+2. Teacher Dashboard: Show classes from GET /auth/teacher-classes/{teacherCode} → Select class → Start session  
+3. Student Attendance: Load students from GET /auth/class-students/{teacher}/{campus}/{subject} → Students scan faces → Mark attendance
 
-API Configuration to use:
+**API CONFIGURATION:**
 ```javascript
 const API_BASE_URL = 'http://localhost:5000';
-const API_HEADERS = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
 
 async function apiRequest(endpoint, method = 'GET', data = null) {
-  const config = { method, headers: API_HEADERS, mode: 'cors' };
+  const config = { method, headers: { 'Content-Type': 'application/json' }, mode: 'cors' };
   if (data) config.body = JSON.stringify(data);
   
   const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
@@ -27,26 +22,73 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
   if (!result.success) throw new Error(result.message);
   return result;
 }
+
+// Face comparison function (implement with your AI)
+async function compareFaces(descriptor1, descriptor2) {
+  // Use Google AI/Genkit to compare face descriptors
+  // Return confidence score (0-1)
+  // Login/attendance success if confidence > 0.8
+}
 ```
 
-Build a modern web app with these features:
-1. Dashboard showing attendance statistics
-2. Student management (add/edit/view students with profile images)
-3. Teacher management (add/edit/view teachers)
-4. Class scheduling and session management
-5. Attendance tracking with Present/Absent/Late status
-6. Campus-based filtering (BKK, SGN, etc.)
-7. Face recognition data upload support
+**SPECIFIC API ENDPOINTS FOR FACE RECOGNITION:**
+- `GET /auth/teachers` → Teachers for dropdown (Lynn, Orlando, Terry, Toqaful)
+- `POST /auth/verify-teacher-face` → Teacher login verification
+- `GET /auth/teacher-classes/{teacherCode}` → Teacher's classes after login
+- `GET /auth/class-students/{teacher}/{campus}/{subject}` → Students in specific class  
+- `POST /auth/verify-student-face` → Student face verification
+- `POST /auth/mark-attendance` → Record attendance after face match
+- `POST /sessions` → Create new session when starting class
 
-Sample API calls:
-- Get students: `await apiRequest('/students')`
-- Create student: `await apiRequest('/students', 'POST', {StudentCode:'STU001', StudentName:'John Doe', EmailAddress:'john@example.com', Campus:'BKK', Form:'10A'})`
-- Get attendance: `await apiRequest('/attendance/session/1')`
+**FACE RECOGNITION WORKFLOW:**
+1. Capture face image using camera/webcam
+2. Extract face descriptor using AI (Google AI/Genkit)
+3. Send descriptor to API for comparison with stored data
+4. API returns stored descriptor for comparison
+5. Compare descriptors using AI (confidence score)
+6. If confidence > 0.8: Success (login/attendance)
+7. If confidence < 0.8: Failure (try again)
 
-The API returns data in format: `{success: true, message: "...", data: {...}}`
+**UI REQUIREMENTS:**
+- Clean, modern design for school environment
+- Large touch-friendly buttons for face scanning
+- Real-time camera preview during scanning
+- Visual feedback: Green (success), Red (failure), Loading states
+- Teacher dashboard showing classes with student counts
+- Student list with face scan buttons and attendance status
+- Error handling for "No face data found" cases
 
-All endpoints support CORS and use JSON. Handle errors gracefully and show loading states. Make it responsive and user-friendly for educational staff to manage attendance efficiently.
+**SAMPLE IMPLEMENTATION:**
+```javascript
+// Teacher Login Flow
+const teachers = await apiRequest('/auth/teachers');
+// User selects teacher and scans face
+const verification = await apiRequest('/auth/verify-teacher-face', 'POST', {
+  TeacherCode: selectedTeacher,
+  FaceDescriptor: JSON.stringify(capturedDescriptor)
+});
+const confidence = await compareFaces(storedDescriptor, capturedDescriptor);
+if (confidence > 0.8) { /* Login success */ }
+
+// Student Attendance Flow  
+const students = await apiRequest('/auth/class-students/TCH001/BKK/MATH101');
+// Student scans face
+const studentVerification = await apiRequest('/auth/verify-student-face', 'POST', {
+  StudentCode: 'STU001',
+  FaceDescriptor: JSON.stringify(capturedDescriptor)
+});
+const confidence = await compareFaces(storedDescriptor, capturedDescriptor);
+if (confidence > 0.8) {
+  await apiRequest('/auth/mark-attendance', 'POST', {
+    SessionId: currentSession,
+    StudentCode: 'STU001',
+    Status: 'Present'
+  });
+}
+```
+
+The API handles all data management. Your app focuses on UI, camera capture, and AI face recognition. Make it responsive and professional for educational use.
 
 ---
 
-PASTE THIS INTO YOUR FIREBASE STUDIO APP AND IT WILL CREATE YOUR FRONTEND!
+PASTE THIS INTO YOUR APP BUILDER AND IT WILL CREATE YOUR FACE RECOGNITION ATTENDANCE SYSTEM!

@@ -160,19 +160,48 @@ const validateAttendance = (req, res, next) => {
 };
 
 const validateFaceData = (req, res, next) => {
-  const { PersonType, PersonCode, ImageData, FaceDescriptor } = req.body;
+  const { PersonType, PersonCode, ImageData, FaceDescriptor, OriginalName, ContentType } = req.body;
   
   const errors = [];
-  const validPersonTypes = ['student', 'teacher'];
+  const validPersonTypes = ['Student', 'Teacher']; // Match database ENUM values
   
   if (!PersonType) errors.push('PersonType is required');
   if (!PersonCode) errors.push('PersonCode is required');
   if (!ImageData) errors.push('ImageData is required');
-  if (!FaceDescriptor) errors.push('FaceDescriptor is required');
+  // FaceDescriptor is nullable in database, so not required
   
-  // Validate PersonType enum
+  // Validate PersonType enum - must match database ENUM exactly
   if (PersonType && !validPersonTypes.includes(PersonType)) {
-    errors.push('PersonType must be either "student" or "teacher"');
+    errors.push('PersonType must be either "Student" or "Teacher"');
+  }
+  
+  // Validate PersonCode length (char(10) in database)
+  if (PersonCode && PersonCode.length > 10) {
+    errors.push('PersonCode must be 10 characters or less');
+  }
+  
+  // Validate OriginalName length (varchar(255) in database)
+  if (OriginalName && OriginalName.length > 255) {
+    errors.push('OriginalName must be 255 characters or less');
+  }
+  
+  // Validate ContentType length (varchar(100) in database)
+  if (ContentType && ContentType.length > 100) {
+    errors.push('ContentType must be 100 characters or less');
+  }
+  
+  // Validate ImageData is base64
+  if (ImageData && !isBase64(ImageData)) {
+    errors.push('ImageData must be valid base64 encoded string');
+  }
+  
+  // Validate FaceDescriptor is valid JSON if provided
+  if (FaceDescriptor) {
+    try {
+      JSON.parse(FaceDescriptor);
+    } catch (err) {
+      errors.push('FaceDescriptor must be valid JSON format');
+    }
   }
   
   if (errors.length > 0) {
@@ -184,6 +213,20 @@ const validateFaceData = (req, res, next) => {
   }
   
   next();
+};
+
+// Helper function to validate base64
+const isBase64 = (str) => {
+  try {
+    return btoa(atob(str)) === str;
+  } catch (err) {
+    // For Node.js environment
+    try {
+      return Buffer.from(str, 'base64').toString('base64') === str;
+    } catch (e) {
+      return false;
+    }
+  }
 };
 
 module.exports = {

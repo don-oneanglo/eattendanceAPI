@@ -8,6 +8,17 @@ This is a comprehensive Node.js + Express REST API for managing educational atte
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### FaceData API Corrections (July 25, 2025)
+✓ Updated FaceData validation to match exact database schema datatypes
+✓ Fixed PersonType enum validation to use "Student"/"Teacher" (case-sensitive)
+✓ Made FaceDescriptor optional to match nullable database field
+✓ Added proper field length validations for all VARCHAR/CHAR fields
+✓ Enhanced base64 validation for ImageData field
+✓ Added PUT endpoint for updating face data records
+✓ Updated API documentation with correct field names and validation rules
+
 ## System Architecture
 
 ### Backend Architecture

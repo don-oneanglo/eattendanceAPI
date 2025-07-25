@@ -633,13 +633,28 @@ POST /face-data
 **Body:**
 ```json
 {
-  "PersonCode": "STU001",
   "PersonType": "Student",
+  "PersonCode": "STU001",
+  "ImageData": "base64_encoded_image_data",
   "FaceDescriptor": "[0.123, -0.456, 0.789, ...]",
-  "ImageFilename": "student_face.jpg",
-  "ImageContentType": "image/jpeg"
+  "OriginalName": "student_face.jpg",
+  "ContentType": "image/jpeg"
 }
 ```
+
+**Validation Rules:**
+- `PersonType`: Required, must be "Student" or "Teacher" (case-sensitive)
+- `PersonCode`: Required, max 10 characters (matches database CHAR(10))
+- `ImageData`: Required, valid base64 encoded string
+- `FaceDescriptor`: Optional, must be valid JSON if provided (nullable in database)
+- `OriginalName`: Optional, max 255 characters (VARCHAR(255))
+- `ContentType`: Optional, max 100 characters, defaults to "image/jpeg" (VARCHAR(100))
+
+### Update Face Data
+```bash
+PUT /face-data/{id}
+```
+**Body:** Same as Create Face Data
 
 ### Delete Face Data
 ```bash
@@ -656,8 +671,8 @@ DELETE /face-data/{id}
     "PersonCode": "STU001",
     "PersonType": "Student",
     "FaceDescriptor": "[0.123, -0.456, 0.789, ...]",
-    "ImageFilename": "student_face.jpg",
-    "ImageContentType": "image/jpeg",
+    "OriginalName": "student_face.jpg",
+    "ContentType": "image/jpeg",
     "CreatedDate": "2025-01-24T10:30:00.000Z"
   }
 }

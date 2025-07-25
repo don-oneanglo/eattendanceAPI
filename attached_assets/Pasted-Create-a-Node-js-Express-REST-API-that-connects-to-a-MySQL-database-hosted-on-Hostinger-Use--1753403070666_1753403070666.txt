@@ -1,0 +1,90 @@
+Create a Node.js + Express REST API that connects to a MySQL database hosted on Hostinger. 
+
+Use `mysql2`, `express`, and `dotenv`. Enable CORS so it can be consumed by a Firebase Studio frontend project hosted locally or deployed. Use connection pooling. 
+
+✅ Schema:
+
+1. Student:
+   - Id (INT, PK, AUTO_INCREMENT)
+   - StudentCode (CHAR(10))
+   - StudentNickname (VARCHAR(100))
+   - StudentName (VARCHAR(200))
+   - StudentImage (LONGBLOB)
+   - EmailAddress (VARCHAR(100))
+   - Campus (VARCHAR(50))
+   - Form (VARCHAR(100))
+   - CreatedDate (DATETIME, default CURRENT_TIMESTAMP)
+
+2. Teacher:
+   - Id, TeacherCode, TeacherNickname, TeacherName, TeacherImage, EmailAddress, Campus, Department, CreatedDate
+
+3. SubjectSet:
+   - Id, Campus, SubjectSetID, Subject, SubjectSetDescription, Credits, CreatedDate
+
+4. Class:
+   - Id, Campus, SubjectSetID, TeacherCode, StudentCode, CreatedDate
+
+5. Sessions:
+   - Id, SessionName, SubjectSetID, TeacherCode, Campus, SessionDate, StartTime, EndTime, CreatedDate
+
+6. AttendanceRecords:
+   - Id, SessionId, StudentCode, Status ('Present', 'Absent', 'Late'), AttendanceDate, CreatedDate
+
+7. FaceData:
+   - Id, PersonType ('student', 'teacher'), PersonCode, ImageData (LONGBLOB), FaceDescriptor (TEXT as JSON), OriginalName, ContentType, CreatedDate
+
+📌 Required API Endpoints (REST):
+
+- GET /students  
+- POST /students  
+- GET /students/:id  
+- PUT /students/:id  
+- DELETE /students/:id  
+
+- GET /teachers  
+- POST /teachers  
+- GET /teachers/:id  
+- PUT /teachers/:id  
+- DELETE /teachers/:id  
+
+- GET /subject-sets  
+- POST /subject-sets  
+- GET /subject-sets/:id  
+
+- GET /classes  
+- POST /classes  
+- GET /classes/:id  
+
+- GET /sessions  
+- POST /sessions  
+- GET /sessions/:id  
+- PUT /sessions/:id  
+
+- GET /attendance  
+- POST /attendance  
+- GET /attendance/:sessionId  
+- PUT /attendance/:id  
+
+- POST /face-data  
+- GET /face-data/:personCode  
+- DELETE /face-data/:id  
+
+🔒 Validations:
+- Required fields should be validated (e.g. not null fields)
+- Ensure enum fields like `Status` or `PersonType` only accept allowed values.
+
+📁 `.env` should contain:
+- DB_HOST  
+- DB_USER  
+- DB_PASSWORD  
+- DB_NAME  
+- DB_PORT (optional)
+
+📎 Extras:
+- Return JSON responses with proper status codes
+- Use async/await for all queries
+- Handle CORS with `cors` middleware
+- Add instructions at the bottom for how to:
+  - Run the project in Replit
+  - Replace `.env` for deployment
+  - Test with Postman or Firebase Studio
